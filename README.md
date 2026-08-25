@@ -36,7 +36,7 @@ A vibrant, customizable colored digital clock and calendar widget for KDE Plasma
 ### Option 1: Git Clone (Recommended)
 ```bash
 mkdir -p ~/.local/share/plasma/plasmoids/
-git clone https://github.com/PlasmaDrifter/color-clock.git ~/.local/share/plasma/plasmoids/local.widget.color-clock
+git clone https://github.com/PlasmaDrifter/Widget-color-clock.git ~/.local/share/plasma/plasmoids/local.widget.color-clock
 ```
 
 ### Option 2: Plasma Package Installer
