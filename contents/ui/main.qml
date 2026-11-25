@@ -1,8 +1,9 @@
-import QtQuick 2.15
+import QtQuick
 import QtQuick.Layouts
 import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.plasmoid
 import org.kde.plasma.components as PlasmaComponents
+import org.kde.plasma.clock as PlasmaClock
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.workspace.calendar as PlasmaCalendar
 
@@ -13,6 +14,11 @@ PlasmoidItem {
 
     Layout.minimumWidth: Kirigami.Units.gridUnit * 4
     Layout.minimumHeight: Kirigami.Units.gridUnit * 2.5
+
+    PlasmaClock.Clock {
+        id: clock
+        trackSeconds: root.expanded
+    }
 
     compactRepresentation: Item {
         Layout.preferredWidth: container.implicitWidth
@@ -25,58 +31,47 @@ PlasmoidItem {
 
             PlasmaComponents.Label {
                 id: timeLabel
-                text: "--:-- --"
+                text: {
+                    var d = clock.dateTime;
+                    var hours = d.getHours();
+                    var ampm = hours >= 12 ? "PM" : "AM";
+                    hours = hours % 12;
+                    hours = hours ? hours : 12;
+                    var minutes = d.getMinutes().toString().padStart(2, "0");
+                    return hours + ":" + minutes + " " + ampm;
+                }
                 anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                
+
                 font.pixelSize: Plasmoid.configuration.timeFontSize > 0 ? Plasmoid.configuration.timeFontSize : 16
                 font.family: Plasmoid.configuration.useCustomFont && Plasmoid.configuration.fontFamily !== "" ? Plasmoid.configuration.fontFamily : ""
                 font.bold: Plasmoid.configuration.fontBold
                 font.italic: Plasmoid.configuration.fontItalic
-                color: Plasmoid.configuration.useCustomColor ? Plasmoid.configuration.fontColor : undefined
+                color: Plasmoid.configuration.useCustomColor ? Plasmoid.configuration.fontColor : Kirigami.Theme.textColor
             }
 
             PlasmaComponents.Label {
                 id: dateLabel
-                text: "-/-/-"
+                text: {
+                    var d = clock.dateTime;
+                    return (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear().toString().slice(-2);
+                }
                 anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                
+
                 font.pixelSize: Plasmoid.configuration.dateFontSize > 0 ? Plasmoid.configuration.dateFontSize : 11
                 font.family: Plasmoid.configuration.useCustomFont && Plasmoid.configuration.fontFamily !== "" ? Plasmoid.configuration.fontFamily : ""
                 font.bold: Plasmoid.configuration.fontBold
                 font.italic: Plasmoid.configuration.fontItalic
-                color: Plasmoid.configuration.useCustomColor ? Plasmoid.configuration.fontColor : undefined
+                color: Plasmoid.configuration.useCustomColor ? Plasmoid.configuration.fontColor : Kirigami.Theme.textColor
             }
         }
 
         MouseArea {
             anchors.fill: parent
             onClicked: root.expanded = !root.expanded
-        }
-
-        Timer {
-            id: timer
-            interval: 30000
-            running: true
-            repeat: true
-            triggeredOnStart: true
-            onTriggered: {
-                var currentDateTime = new Date();
-                var hours = currentDateTime.getHours();
-                var ampm = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12;
-                hours = hours ? hours : 12;
-                var minutes = currentDateTime.getMinutes().toString().padStart(2, '0');
-                timeLabel.text = hours + ":" + minutes + " " + ampm;
-                
-                var month = currentDateTime.getMonth() + 1;
-                var day = currentDateTime.getDate();
-                var year = currentDateTime.getFullYear().toString().slice(-2);
-                dateLabel.text = month + "/" + day + "/" + year;
-            }
         }
     }
 
@@ -122,22 +117,15 @@ PlasmoidItem {
                 font.bold: true
                 font.family: Plasmoid.configuration.useCustomFont && Plasmoid.configuration.fontFamily !== "" ? Plasmoid.configuration.fontFamily : ""
                 color: Plasmoid.configuration.useCustomColor ? Plasmoid.configuration.fontColor : Kirigami.Theme.textColor
-
-                Timer {
-                    interval: 500
-                    running: root.expanded
-                    repeat: true
-                    triggeredOnStart: true
-                    onTriggered: {
-                        var d = new Date();
-                        var hours = d.getHours();
-                        var ampm = hours >= 12 ? 'PM' : 'AM';
-                        hours = hours % 12;
-                        hours = hours ? hours : 12;
-                        var minutes = d.getMinutes().toString().padStart(2, '0');
-                        var seconds = d.getSeconds().toString().padStart(2, '0');
-                        popupTimeLabel.text = hours + ":" + minutes + ":" + seconds + " " + ampm;
-                    }
+                text: {
+                    var d = clock.dateTime;
+                    var hours = d.getHours();
+                    var ampm = hours >= 12 ? "PM" : "AM";
+                    hours = hours % 12;
+                    hours = hours ? hours : 12;
+                    var minutes = d.getMinutes().toString().padStart(2, "0");
+                    var seconds = d.getSeconds().toString().padStart(2, "0");
+                    return hours + ":" + minutes + ":" + seconds + " " + ampm;
                 }
             }
 
